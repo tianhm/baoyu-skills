@@ -19,9 +19,11 @@ function printUsage(exitCode = 0): never {
   npx -y bun skills/gemini-web/scripts/main.ts --prompt "Hello"
   npx -y bun skills/gemini-web/scripts/main.ts "Hello"
   npx -y bun skills/gemini-web/scripts/main.ts --prompt "A cute cat" --image generated.png
+  npx -y bun skills/gemini-web/scripts/main.ts --promptfiles system.md content.md --image out.png
 
 Options:
   -p, --prompt <text>       Prompt text
+  --promptfiles <files...>  Read prompt from one or more files (concatenated in order)
   -m, --model <id>          gemini-3-pro | gemini-2.5-pro | gemini-2.5-flash (default: gemini-3-pro)
   --json                    Output JSON
   --image [path]            Generate an image and save it (default: ./generated.png)
@@ -51,8 +53,22 @@ async function readPromptFromStdin(): Promise<string | null> {
   return text ? text : null;
 }
 
+function readPromptFiles(filePaths: string[]): string {
+  const contents: string[] = [];
+  for (const filePath of filePaths) {
+    const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
+    if (!fs.existsSync(resolved)) {
+      throw new Error(`Prompt file not found: ${resolved}`);
+    }
+    const content = fs.readFileSync(resolved, 'utf8').trim();
+    contents.push(content);
+  }
+  return contents.join('\n\n');
+}
+
 function parseArgs(argv: string[]): {
   prompt?: string;
+  promptFiles?: string[];
   model?: string;
   json?: boolean;
   imagePath?: string;
@@ -99,6 +115,19 @@ function parseArgs(argv: string[]): {
     }
     if (arg.startsWith('--prompt=')) {
       out.prompt = arg.slice('--prompt='.length);
+      continue;
+    }
+    if (arg === '--promptfiles') {
+      out.promptFiles = [];
+      while (i + 1 < argv.length) {
+        const next = argv[i + 1];
+        if (next && !next.startsWith('-')) {
+          out.promptFiles.push(next);
+          i += 1;
+        } else {
+          break;
+        }
+      }
       continue;
     }
     if (arg === '--model' || arg === '-m') {
@@ -148,6 +177,7 @@ function parseArgs(argv: string[]): {
   if (out.imagePath === '') delete out.imagePath;
   if (out.cookiePath === '') delete out.cookiePath;
   if (out.profileDir === '') delete out.profileDir;
+  if (out.promptFiles?.length === 0) delete out.promptFiles;
 
   return out;
 }
@@ -227,7 +257,8 @@ async function main(): Promise<void> {
   }
 
   const promptFromStdin = await readPromptFromStdin();
-  const prompt = args.prompt || promptFromStdin;
+  const promptFromFiles = args.promptFiles ? readPromptFiles(args.promptFiles) : null;
+  const prompt = promptFromFiles || args.prompt || promptFromStdin;
   if (!prompt) printUsage(1);
 
   let cookieMap = await ensureGeminiCookieMap({ cookiePath, profileDir });

@@ -11,6 +11,7 @@ description: Interacts with Gemini Web to generate text and images. Use when the
 npx -y bun scripts/main.ts "Hello, Gemini"
 npx -y bun scripts/main.ts --prompt "Explain quantum computing"
 npx -y bun scripts/main.ts --prompt "A cute cat" --image cat.png
+npx -y bun scripts/main.ts --promptfiles system.md content.md --image out.png
 ```
 
 ## Commands
@@ -60,6 +61,7 @@ npx -y bun scripts/main.ts "Hello" --json
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--prompt <text>` | `-p` | Prompt text |
+| `--promptfiles <files...>` | | Read prompt from files (concatenated in order) |
 | `--model <id>` | `-m` | Model: gemini-3-pro (default), gemini-2.5-pro, gemini-2.5-flash |
 | `--image [path]` | | Generate image, save to path (default: generated.png) |
 | `--json` | | Output as JSON |
@@ -107,4 +109,10 @@ npx -y bun scripts/main.ts "A photorealistic image of a golden retriever puppy" 
 ### Get JSON output for parsing
 ```bash
 npx -y bun scripts/main.ts "Hello" --json | jq '.text'
+```
+
+### Generate image from prompt files
+```bash
+# Concatenate system.md + content.md as prompt
+npx -y bun scripts/main.ts --promptfiles system.md content.md --image output.png
 ```
