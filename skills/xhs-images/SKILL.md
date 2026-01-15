@@ -328,16 +328,15 @@ Style notes: [style-specific characteristics]
 | `comparison` | Two-column split, clear divider, mirrored structure left/right |
 | `flow` | Horizontal or vertical flow with arrows, connected nodes/steps |
 
-Then generate using:
+**Image Generation Skill Selection**:
+1. Check available image generation skills
+2. If multiple skills available, ask user to choose
 
-```bash
-/gemini-web --promptfiles [SKILL_ROOT]/skills/xhs-images/prompts/system.md [TARGET_DIR]/prompts/01-cover.md --image [TARGET_DIR]/01-cover.png
-```
-
-After each image:
-1. Confirm generation success
-2. Report progress: "Generated X/N"
-3. Continue to next
+**Generation Flow**:
+1. Call selected image generation skill with prompt file and output path
+2. Confirm generation success
+3. Report progress: "Generated X/N"
+4. Continue to next
 
 ### Step 5: Completion Report
 

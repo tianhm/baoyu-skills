@@ -191,11 +191,12 @@ Note: No title text, pure visual illustration only.
 
 ### Step 5: Generate Image
 
-Call gemini-web to generate the cover:
+**Image Generation Skill Selection**:
+1. Check available image generation skills
+2. If multiple skills available, ask user to choose
 
-```bash
-/gemini-web --promptfiles [SKILL_ROOT]/skills/cover-image/prompts/system.md [PROMPT_PATH] --image [OUTPUT_PATH]
-```
+**Generation**:
+Call selected image generation skill with prompt file and output path.
 
 ### Step 6: Output Summary
 

@@ -201,17 +201,16 @@ Style notes: [specific style characteristics]
 
 ### Step 5: Generate Images
 
-For each illustration, call:
+**Image Generation Skill Selection**:
+1. Check available image generation skills
+2. If multiple skills available, ask user to choose
 
-```bash
-/gemini-web --promptfiles [SKILL_ROOT]/skills/article-illustrator/prompts/system.md [ARTICLE_DIR]/imgs/prompts/illustration-[slug].md --image [ARTICLE_DIR]/imgs/illustration-[slug].png
-```
-
-Generation flow:
-1. Generate images sequentially
-2. After each image, output progress: "Generated X/N"
-3. On failure, auto-retry once
-4. If retry fails, log reason, continue to next
+**Generation Flow**:
+1. Call selected image generation skill with prompt file and output path
+2. Generate images sequentially
+3. After each image, output progress: "Generated X/N"
+4. On failure, auto-retry once
+5. If retry fails, log reason, continue to next
 
 ### Step 6: Update Article
 
