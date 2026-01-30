@@ -2,6 +2,12 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.26.0 - 2026-01-29
+
+### Features
+- `baoyu-xhs-images`: add `notebook` style (hand-drawn infographic with watercolor rendering and Morandi palette) and `study-notes` style (realistic handwritten photo aesthetic).
+- `baoyu-xhs-images`: add `mindmap` (center radial) and `quadrant` (four-section grid) layouts.
+
 ## 1.25.4 - 2026-01-29
 
 ### Fixes

@@ -2,6 +2,12 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.26.0 - 2026-01-29
+
+### 新功能
+- `baoyu-xhs-images`：新增 `notebook` 风格（水彩渲染手绘信息图 + 莫兰迪配色）和 `study-notes` 风格（真实手写照片美学）。
+- `baoyu-xhs-images`：新增 `mindmap`（中心发散式）和 `quadrant`（四象限）布局。
+
 ## 1.25.4 - 2026-01-29
 
 ### 修复
