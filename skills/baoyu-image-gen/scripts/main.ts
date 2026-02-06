@@ -1,7 +1,7 @@
 import path from "node:path";
 import process from "node:process";
 import { homedir } from "node:os";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import type { CliArgs, Provider, ExtendConfig } from "./types";
 
 function printUsage(): void {
@@ -20,7 +20,7 @@ Options:
   --size <WxH>              Size (e.g., 1024x1024)
   --quality normal|2k       Quality preset (default: 2k)
   --imageSize 1K|2K|4K      Image size for Google (default: from quality)
-  --ref <files...>          Reference images (Google multimodal only)
+  --ref <files...>          Reference images (Google multimodal or OpenAI edits)
   --n <count>               Number of images (default: 1)
   --json                    JSON output
   -h, --help                Show help
@@ -323,11 +323,25 @@ function normalizeOutputImagePath(p: string): string {
 }
 
 function detectProvider(args: CliArgs): Provider {
+  if (args.referenceImages.length > 0 && args.provider && args.provider !== "google" && args.provider !== "openai") {
+    throw new Error(
+      "Reference images require a ref-capable provider. Use --provider google (Gemini multimodal) or --provider openai (GPT Image edits)."
+    );
+  }
+
   if (args.provider) return args.provider;
 
   const hasGoogle = !!(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY);
   const hasOpenai = !!process.env.OPENAI_API_KEY;
   const hasDashscope = !!process.env.DASHSCOPE_API_KEY;
+
+  if (args.referenceImages.length > 0) {
+    if (hasGoogle) return "google";
+    if (hasOpenai) return "openai";
+    throw new Error(
+      "Reference images require Google or OpenAI. Set GOOGLE_API_KEY/GEMINI_API_KEY or OPENAI_API_KEY, or remove --ref."
+    );
+  }
 
   const available = [hasGoogle && "google", hasOpenai && "openai", hasDashscope && "dashscope"].filter(Boolean) as Provider[];
 
@@ -340,10 +354,33 @@ function detectProvider(args: CliArgs): Provider {
   );
 }
 
+async function validateReferenceImages(referenceImages: string[]): Promise<void> {
+  for (const refPath of referenceImages) {
+    const fullPath = path.resolve(refPath);
+    try {
+      await access(fullPath);
+    } catch {
+      throw new Error(`Reference image not found: ${fullPath}`);
+    }
+  }
+}
+
 type ProviderModule = {
   getDefaultModel: () => string;
   generateImage: (prompt: string, model: string, args: CliArgs) => Promise<Uint8Array>;
 };
+
+function isRetryableGenerationError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  const nonRetryableMarkers = [
+    "Reference image",
+    "not supported",
+    "only supported",
+    "No API key found",
+    "is required",
+  ];
+  return !nonRetryableMarkers.some((marker) => msg.includes(marker));
+}
 
 async function loadProviderModule(provider: Provider): Promise<ProviderModule> {
   if (provider === "google") {
@@ -387,6 +424,10 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (mergedArgs.referenceImages.length > 0) {
+    await validateReferenceImages(mergedArgs.referenceImages);
+  }
+
   const provider = detectProvider(mergedArgs);
   const providerModule = await loadProviderModule(provider);
 
@@ -408,7 +449,7 @@ async function main(): Promise<void> {
       imageData = await providerModule.generateImage(prompt, model, mergedArgs);
       break;
     } catch (e) {
-      if (!retried) {
+      if (!retried && isRetryableGenerationError(e)) {
         retried = true;
         console.error("Generation failed, retrying...");
         continue;
