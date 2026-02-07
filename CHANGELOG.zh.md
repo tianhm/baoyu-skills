@@ -2,6 +2,11 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.31.0 - 2026-02-07
+
+### 新功能
+- `baoyu-post-to-wechat`：新增评论控制设置（`need_open_comment`、`only_fans_can_comment`）；新增封面图片回退链（CLI → frontmatter → `imgs/cover.png` → 首张内联图片）；新增作者优先级解析；新增首次使用引导流程和 EXTEND.md 偏好配置。
+
 ## 1.30.3 - 2026-02-06
 
 ### 重构
