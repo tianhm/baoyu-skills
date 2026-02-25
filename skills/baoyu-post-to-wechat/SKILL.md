@@ -196,19 +196,18 @@ B) Continue - provide HTML file manually
 
 **Skip if**: Input is `.html` file
 
-1. **Ask theme preference** (unless specified in EXTEND.md or CLI):
+1. **Resolve theme** (first match wins, do NOT ask user if resolved):
+   - CLI `--theme` argument
+   - EXTEND.md `default_theme` (loaded in Step 0)
+   - Fallback: `default`
 
-| Theme | Description |
-|-------|-------------|
-| `default` | 经典主题 - 传统排版，标题居中带底边，二级标题白字彩底 |
-| `grace` | 优雅主题 - 文字阴影，圆角卡片，精致引用块 |
-| `simple` | 简洁主题 - 现代极简风，不对称圆角，清爽留白 |
-
-2. **Execute conversion** (using the discovered skill):
+2. **Execute conversion** (using the discovered skill), **always pass `--theme`**:
 
 ```bash
 npx -y bun ${MD_TO_HTML_SKILL_DIR}/scripts/main.ts <markdown_file> --theme <theme>
 ```
+
+**CRITICAL**: Always include `--theme` parameter. Never omit it, even if using `default`.
 
 3. **Parse JSON output** to get: `htmlPath`, `title`, `author`, `summary`, `contentImages`
 
