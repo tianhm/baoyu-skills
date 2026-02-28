@@ -110,14 +110,22 @@ npx -y bun ${SKILL_DIR}/scripts/main.ts --prompt "A cat" --image out.png --provi
 
 **Load Priority**: CLI args > EXTEND.md > env vars > `<cwd>/.baoyu-skills/.env` > `~/.baoyu-skills/.env`
 
-## Replicate Model Configuration
+## Model Resolution
 
-When using `--provider replicate`, the model can be configured in the following ways (highest priority first):
+Model priority (highest → lowest), applies to all providers:
 
-1. CLI flag: `--model <owner/name>`
-2. EXTEND.md: `default_model.replicate`
-3. Env var: `REPLICATE_IMAGE_MODEL`
-4. Built-in default: `google/nano-banana-pro`
+1. CLI flag: `--model <id>`
+2. EXTEND.md: `default_model.[provider]`
+3. Env var: `<PROVIDER>_IMAGE_MODEL` (e.g., `GOOGLE_IMAGE_MODEL`)
+4. Built-in default
+
+**EXTEND.md overrides env vars**. If both EXTEND.md `default_model.google: "gemini-3-pro-image-preview"` and env var `GOOGLE_IMAGE_MODEL=gemini-3.1-flash-image-preview` exist, EXTEND.md wins.
+
+**Agent MUST display model info** before each generation:
+- Show: `Using [provider] / [model]`
+- Show switch hint: `Switch model: --model <id> | EXTEND.md default_model.[provider] | env <PROVIDER>_IMAGE_MODEL`
+
+### Replicate Models
 
 Supported model formats:
 
