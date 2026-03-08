@@ -2,6 +2,11 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.56.1 - 2026-03-08
+
+### Fixes
+- `baoyu-post-to-weibo`: simplify article image insertion with Backspace-based placeholder deletion for ProseMirror compatibility
+
 ## 1.56.0 - 2026-03-08
 
 ### Features

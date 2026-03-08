@@ -2,6 +2,11 @@
 
 [English](./CHANGELOG.md) | 中文
 
+## 1.56.1 - 2026-03-08
+
+### 修复
+- `baoyu-post-to-weibo`：简化头条文章图片插入逻辑，使用 Backspace 按键替代复杂的 deleteContents 方案，兼容 ProseMirror 编辑器
+
 ## 1.56.0 - 2026-03-08
 
 ### 新功能
