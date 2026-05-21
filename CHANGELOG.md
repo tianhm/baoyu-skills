@@ -2,6 +2,25 @@
 
 English | [中文](./CHANGELOG.zh.md)
 
+## 1.118.0 - 2026-05-21
+
+### Features
+- `codex-imagegen`: new image-generation backend for non-Codex runtimes (e.g., Claude Code) — spawns `codex exec --json --sandbox danger-full-access` and delegates to Codex CLI's built-in `image_gen` tool, so no `OPENAI_API_KEY` is required. Ships with idempotency cache, file-lock concurrency control, JSONL event-stream parsing, PNG magic-byte validation, and exponential-backoff retries (by @yelban, #158)
+- `baoyu-cover-image`: wire `SKILL.md` to call the `codex-imagegen` wrapper when `preferred_image_backend: codex-imagegen` is set, with `--timeout` documented for slow networks
+
+### Refactor
+- `codex-imagegen`: enforce `--prompt` / `--prompt-file` mutual exclusion in code (was docs-only)
+- `codex-imagegen`: replace `(opts as any).__promptFile` hack with a typed `promptFile` field on `CliOptions`
+- `codex-imagegen`: replace inline `cp|mv ... generated_images` regex with the shared `findCpToTarget` helper
+- `codex-imagegen`: propagate `attempts` on error responses (previously hardcoded to `0`)
+- `codex-imagegen`: drop dead `parseFinalJson()` + matching test (wrapper ignores agent-reported JSON in favor of disk verification)
+
+### Security
+- `codex-imagegen`: reject `--image` / `--ref` paths containing shell metacharacters before interpolating them into the agent instruction sent to `codex exec --sandbox danger-full-access`
+
+### Credits
+- `codex-imagegen` backend contributed by @yelban (#158)
+
 ## 1.117.5 - 2026-05-21
 
 ### Credits

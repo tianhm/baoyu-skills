@@ -62,20 +62,3 @@ function deriveToolName(item: any): string {
 export function hasImageGenInvocation(toolCalls: ToolCall[]): boolean {
   return toolCalls.some((tc) => tc.tool === "image_gen");
 }
-
-export function parseFinalJson(agentMessage: string | null): { path?: string; bytes?: number } | null {
-  if (!agentMessage) return null;
-  const trimmed = agentMessage.trim();
-  const candidates = [trimmed];
-  const match = trimmed.match(/\{[^{}]*"status"\s*:\s*"ok"[^{}]*\}/);
-  if (match) candidates.push(match[0]);
-  for (const c of candidates) {
-    try {
-      const obj = JSON.parse(c);
-      if (obj?.status === "ok") return { path: obj.path, bytes: obj.bytes };
-    } catch {
-      continue;
-    }
-  }
-  return null;
-}

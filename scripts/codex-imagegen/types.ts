@@ -1,5 +1,6 @@
 export interface CliOptions {
   prompt: string;
+  promptFile: string | null;
   outputPath: string;
   aspect: string;
   refImages: string[];
@@ -70,6 +71,7 @@ export const RETRYABLE: ReadonlySet<ErrorKind> = new Set([
 ]);
 
 export class GenError extends Error {
+  attempts?: number;
   constructor(public kind: ErrorKind, message: string, public retryable?: boolean) {
     super(message);
     this.retryable = retryable ?? RETRYABLE.has(kind);

@@ -36,9 +36,11 @@ When this skill needs to render an image, resolve the backend in this order:
        --prompt-file <absolute_path_to_prompts/NN-cover-[slug].md> \
        --aspect <ratio> \
        [--ref <absolute_file>]... \
+       [--timeout <ms>] \
        [--cache-dir ~/.cache/baoyu-codex-imagegen] \
        [--log-file <absolute_jsonl_log_path>]
      ```
+     `--timeout` defaults to 300000 (5 min) per codex exec attempt; raise it (e.g. `--timeout 600000` for 10 min) on slow networks or large prompts.
      All input paths to the wrapper are auto-resolved against the wrapper's `process.cwd()` if you pass relative ones, but agents should pass absolute paths to be robust against cwd drift. Parse the single-line JSON on stdout. On `{"status":"ok",...}` proceed to Step 5. On `{"status":"error","error_kind":...}` report the `error_kind` to the user and (if retryable) ask whether to retry or fall back to another backend. The wrapper uses the user's Codex subscription — no `OPENAI_API_KEY` needed.
    - **Other runtime-native tools** — if the runtime exposes a different native image tool (e.g., Hermes `image_generate`), use it the same way.
    - Otherwise, if exactly one non-native backend is installed (e.g., `baoyu-imagine`), use it.
@@ -226,7 +228,7 @@ Save to `prompts/cover.md`. Template: [references/workflow/prompt-template.md](r
    - `direct` usage → pass via `--ref` (use ref-capable backend)
    - `style`/`palette` → extract traits, append to prompt
 5. **Generate**: Call the chosen backend with the prompt file, output path, aspect ratio.
-   - **`codex-imagegen`**: invoke `<ABSOLUTE_PLUGIN_ROOT>/scripts/codex-imagegen.sh` (NOT a cwd-relative `./scripts/...` — resolve the absolute path from this skill's base directory: `../../scripts/codex-imagegen.sh`) with `--image <ABSOLUTE_output>` `--prompt-file <ABSOLUTE_prompts/01-cover-[slug].md>` `--aspect <ratio>` (add `--ref <ABSOLUTE_file>` per reference, `--cache-dir ~/.cache/baoyu-codex-imagegen` to enable the idempotency cache). All input paths to the wrapper are auto-resolved against its `process.cwd()` if relative, but passing absolutes is more robust. Read the stdout JSON; act on `status` and `error_kind`.
+   - **`codex-imagegen`**: invoke `<ABSOLUTE_PLUGIN_ROOT>/scripts/codex-imagegen.sh` (NOT a cwd-relative `./scripts/...` — resolve the absolute path from this skill's base directory: `../../scripts/codex-imagegen.sh`) with `--image <ABSOLUTE_output>` `--prompt-file <ABSOLUTE_prompts/01-cover-[slug].md>` `--aspect <ratio>` (add `--ref <ABSOLUTE_file>` per reference, `--cache-dir ~/.cache/baoyu-codex-imagegen` to enable the idempotency cache, `--timeout <ms>` to override the default 300000 / 5-min per-attempt limit on slow networks). All input paths to the wrapper are auto-resolved against its `process.cwd()` if relative, but passing absolutes is more robust. Read the stdout JSON; act on `status` and `error_kind`.
    - **Codex `imagegen` (native)** or other runtime-native tools / `baoyu-imagine` skill: per the rule in `## Image Generation Tools` above.
 6. On failure: auto-retry once
 

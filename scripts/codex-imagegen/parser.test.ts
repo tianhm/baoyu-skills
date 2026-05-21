@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { parseEventStream, hasImageGenInvocation, parseFinalJson } from "./parser.ts";
+import { parseEventStream, hasImageGenInvocation } from "./parser.ts";
 
 const REAL_PoC_STREAM = `{"type":"thread.started","thread_id":"019e40d3-30e3-7030-874d-773bc0d6d1eb"}
 {"type":"turn.started"}
@@ -39,19 +39,6 @@ test("hasImageGenInvocation finds shell calls touching generated_images", () => 
   // this test only verifies parser behavior; driver logic lives in validator
   const hasCp = r.toolCalls.some((tc) => tc.command?.includes("generated_images"));
   expect(hasCp).toBe(true);
-});
-
-test("parseFinalJson extracts {status:ok, path, bytes}", () => {
-  expect(parseFinalJson('{"status":"ok","path":"/tmp/a.png","bytes":1234}')).toEqual({
-    path: "/tmp/a.png",
-    bytes: 1234,
-  });
-  expect(parseFinalJson("garbage text {\"status\":\"ok\",\"path\":\"/x\",\"bytes\":5} trailer")).toEqual({
-    path: "/x",
-    bytes: 5,
-  });
-  expect(parseFinalJson(null)).toBeNull();
-  expect(parseFinalJson('{"status":"error","reason":"x"}')).toBeNull();
 });
 
 test("hasImageGenInvocation (proper) returns false when no image_gen tool", () => {

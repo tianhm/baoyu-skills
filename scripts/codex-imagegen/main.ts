@@ -5,8 +5,7 @@ import process from "node:process";
 import { setTimeout as delay } from "node:timers/promises";
 import { GenError, type CliOptions, type GenerateResult } from "./types.ts";
 import { runCodexExec } from "./spawn.ts";
-import { hasImageGenInvocation } from "./parser.ts";
-import { codexHome, verifyImageGenWasInvoked, verifyOutput } from "./validator.ts";
+import { findCpToTarget, verifyImageGenWasInvoked, verifyOutput } from "./validator.ts";
 import { cacheKey, lookupCache, storeCache, FileLock } from "./cache.ts";
 import { JsonLogger } from "./logger.ts";
 
@@ -34,9 +33,22 @@ Options:
 Stdout: single JSON line on success or failure.
 `;
 
+const SHELL_METACHAR = /[;|&`$<>\n\r()'"]/;
+
+function assertSafePath(label: string, value: string): void {
+  if (SHELL_METACHAR.test(value)) {
+    throw new GenError(
+      "invalid_args",
+      `${label} contains shell metacharacters and would be unsafe to interpolate into the codex instruction: ${value}`,
+      false,
+    );
+  }
+}
+
 function parseArgs(argv: string[]): CliOptions {
   const opts: CliOptions = {
     prompt: "",
+    promptFile: null,
     outputPath: "",
     aspect: "1:1",
     refImages: [],
@@ -47,13 +59,12 @@ function parseArgs(argv: string[]): CliOptions {
     logFile: null,
     verbose: false,
   };
-  let promptFile: string | null = null;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const next = () => argv[++i];
     switch (a) {
       case "--prompt": opts.prompt = next(); break;
-      case "--prompt-file": promptFile = next(); break;
+      case "--prompt-file": opts.promptFile = next(); break;
       case "--image": opts.outputPath = next(); break;
       case "--aspect": opts.aspect = next(); break;
       case "--ref": opts.refImages.push(next()); break;
@@ -70,7 +81,12 @@ function parseArgs(argv: string[]): CliOptions {
     }
   }
   if (!opts.outputPath) throw new GenError("invalid_args", "--image is required", false);
-  if (!opts.prompt && !promptFile) throw new GenError("invalid_args", "--prompt or --prompt-file required", false);
+  if (opts.prompt && opts.promptFile) {
+    throw new GenError("invalid_args", "--prompt and --prompt-file are mutually exclusive", false);
+  }
+  if (!opts.prompt && !opts.promptFile) {
+    throw new GenError("invalid_args", "--prompt or --prompt-file required", false);
+  }
 
   // Resolve every filesystem path to absolute up front, so behavior is
   // independent of the caller's cwd. This matters when the wrapper is
@@ -79,20 +95,24 @@ function parseArgs(argv: string[]): CliOptions {
   const toAbs = (p: string) => (path.isAbsolute(p) ? p : path.resolve(cwd, p));
 
   opts.outputPath = toAbs(opts.outputPath);
-  if (promptFile) {
-    opts.prompt = ""; // will be loaded later
-    (opts as any).__promptFile = toAbs(promptFile);
-  }
+  if (opts.promptFile) opts.promptFile = toAbs(opts.promptFile);
   opts.refImages = opts.refImages.map(toAbs);
   if (opts.cacheDir) opts.cacheDir = toAbs(opts.cacheDir);
   if (opts.logFile) opts.logFile = toAbs(opts.logFile);
+
+  // The output and ref paths are interpolated raw into the agent instruction
+  // sent to `codex exec --sandbox danger-full-access`. A path containing shell
+  // metacharacters could be misread by the agent's shell when it cp's the
+  // result into place. Reject upfront rather than trusting the agent to quote.
+  assertSafePath("--image path", opts.outputPath);
+  for (const ref of opts.refImages) assertSafePath("--ref path", ref);
 
   return opts;
 }
 
 async function loadPrompt(opts: CliOptions): Promise<string> {
   if (opts.prompt) return opts.prompt;
-  const file = (opts as any).__promptFile as string;
+  const file = opts.promptFile!;
   try {
     return await readFile(file, "utf-8");
   } catch {
@@ -157,11 +177,8 @@ async function attemptGenerate(
   // verify: image_gen was actually invoked (check $CODEX_HOME/generated_images/{threadId}/)
   const ver = await verifyImageGenWasInvoked(run.threadId);
   if (!ver.ok) {
-    // secondary verify: did tool_calls include cp/mv from generated_images
-    const sawCopy = run.toolCalls.some(
-      (tc) => tc.command && /\b(cp|mv)\b/.test(tc.command) && tc.command.includes("generated_images"),
-    );
-    if (!sawCopy) {
+    // secondary verify: did tool_calls include cp/mv from generated_images to our target
+    if (!findCpToTarget(run.toolCalls, opts.outputPath)) {
       throw new GenError("no_image_gen_tool_use", `image_gen was not invoked: ${ver.reason}`);
     }
   }
@@ -218,8 +235,10 @@ async function generate(opts: CliOptions, log: JsonLogger): Promise<GenerateResu
   const instruction = buildInstruction(prompt, opts);
 
   let lastErr: GenError | null = null;
+  let lastAttempt = 0;
   try {
     for (let attempt = 1; attempt <= opts.retries + 1; attempt++) {
+      lastAttempt = attempt;
       try {
         const result = await attemptGenerate(opts, instruction, attempt, log);
 
@@ -259,7 +278,9 @@ async function generate(opts: CliOptions, log: JsonLogger): Promise<GenerateResu
     await lock.release();
   }
 
-  throw lastErr ?? new GenError("spawn_failed", "Unknown failure");
+  const err = lastErr ?? new GenError("spawn_failed", "Unknown failure");
+  err.attempts = lastAttempt;
+  throw err;
 }
 
 async function main() {
@@ -282,14 +303,14 @@ async function main() {
     process.exit(0);
   } catch (e) {
     const err = e instanceof GenError ? e : new GenError("spawn_failed", String(e));
-    await log.error("failed", { kind: err.kind, error: err.message });
+    await log.error("failed", { kind: err.kind, error: err.message, attempts: err.attempts ?? 0 });
     const out: GenerateResult = {
       status: "error",
       path: opts.outputPath,
       bytes: 0,
       elapsed_seconds: 0,
       thread_id: null,
-      attempts: 0,
+      attempts: err.attempts ?? 0,
       cached: false,
       usage: null,
       tool_calls: [],
