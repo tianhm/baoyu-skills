@@ -1145,6 +1145,43 @@ AI 驱动的生成后端。
 - 正常版和毒舌版两种风格
 - 支持从历史摘要回溯初始化画像
 
+#### baoyu-electron-extract
+
+从任意已安装的 Electron 应用的 `app.asar` 中提取资源和 JavaScript。当 `.js.map` 内嵌 `sourcesContent` 时，还原原始源码树（含 TypeScript/JSX）；否则用 Prettier 原地美化压缩后的 JS/CSS。始终跳过 `node_modules`。支持 macOS 和 Windows，其他平台请用 `--asar <path>` 指定 asar 文件。
+
+```bash
+# 按应用名提取（默认输出：~/Downloads/<AppName>-electron-extract/）
+/baoyu-electron-extract Codex
+
+# 按绝对路径提取（.app 包、安装目录或 .asar 文件均可）
+/baoyu-electron-extract "/Applications/Visual Studio Code.app"
+/baoyu-electron-extract --asar /Applications/Codex.app/Contents/Resources/app.asar Codex
+
+# 自定义输出目录
+/baoyu-electron-extract Codex --output ~/work/codex-source
+
+# 仅预览发现的路径，不写入任何文件
+/baoyu-electron-extract Codex --dry-run
+
+# 覆盖已存在的输出目录
+/baoyu-electron-extract Codex --force
+```
+
+**选项**：
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `<app>` | 应用名或绝对路径（未给 `--asar` 时必填） | — |
+| `--output`, `-o` | 输出目录 | `~/Downloads/<AppName>-electron-extract` |
+| `--asar` | 覆盖解析得到的 `.asar` 路径 | 自动发现 |
+| `--force`, `-f` | 允许写入非空的已有输出目录 | false |
+| `--skip-format` | 跳过 Prettier 格式化 | false |
+| `--skip-restore` | 跳过 source-map 还原 | false |
+| `--no-unpacked` | 不复制同级的 `app.asar.unpacked/` | false |
+| `--dry-run` | 打印解析路径后退出，不写文件 | false |
+| `--json` | 在 stdout 输出一行 JSON 概要 | false |
+
+**输出结构**：`extract-report.json`（计数、警告、路径），`extracted/`（asar 原始内容，无 map 时原地美化），`extracted.unpacked/`（存在时复制的原生模块），以及 `restored/`（基于 `.js.map` 重建的源码树）。
+
 ## 环境配置
 
 部分技能需要 API 密钥或自定义配置。环境变量可以在 `.env` 文件中设置：

@@ -22,6 +22,7 @@
         "./skills/baoyu-danger-gemini-web",
         "./skills/baoyu-danger-x-to-markdown",
         "./skills/baoyu-diagram",
+        "./skills/baoyu-electron-extract",
         "./skills/baoyu-format-markdown",
         "./skills/baoyu-imagine",
         "./skills/baoyu-infographic",

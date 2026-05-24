@@ -1154,6 +1154,43 @@ Summarize WeChat group chat highlights into a structured digest. Extracts topics
 - Normal and roast (毒舌) digest versions
 - Profile backfill from historical digests
 
+#### baoyu-electron-extract
+
+Extract resources and JavaScript from any installed Electron app's `app.asar`. When `.js.map` files embed `sourcesContent`, restores the original source tree (TypeScript/JSX included); otherwise formats the minified JS/CSS with Prettier in place. Always skips `node_modules`. Works on macOS and Windows; pass `--asar <path>` on other platforms.
+
+```bash
+# Extract by app name (default output: ~/Downloads/Codex-electron-extract/)
+/baoyu-electron-extract Codex
+
+# Extract by absolute path (.app bundle, install dir, or .asar file)
+/baoyu-electron-extract "/Applications/Visual Studio Code.app"
+/baoyu-electron-extract --asar /Applications/Codex.app/Contents/Resources/app.asar Codex
+
+# Custom output directory
+/baoyu-electron-extract Codex --output ~/work/codex-source
+
+# Preview discovery without writing anything
+/baoyu-electron-extract Codex --dry-run
+
+# Overwrite an existing output directory
+/baoyu-electron-extract Codex --force
+```
+
+**Options**:
+| Option | Description | Default |
+|--------|-------------|---------|
+| `<app>` | App name or absolute path (required unless `--asar`) | — |
+| `--output`, `-o` | Output directory | `~/Downloads/<AppName>-electron-extract` |
+| `--asar` | Override the resolved `.asar` path | auto-discovered |
+| `--force`, `-f` | Allow writing into a non-empty existing output dir | false |
+| `--skip-format` | Skip Prettier formatting | false |
+| `--skip-restore` | Skip source-map restoration | false |
+| `--no-unpacked` | Don't copy `app.asar.unpacked/` alongside | false |
+| `--dry-run` | Print resolved paths and exit without writing | false |
+| `--json` | Emit one JSON-line summary on stdout | false |
+
+**Output layout**: `extract-report.json` (counts, warnings, paths), `extracted/` (raw asar, formatted in place when no map), `extracted.unpacked/` (native modules if present), and `restored/` (rebuilt source tree from `.js.map` files).
+
 ## Environment Configuration
 
 Some skills require API keys or custom configuration. Environment variables can be set in `.env` files:
