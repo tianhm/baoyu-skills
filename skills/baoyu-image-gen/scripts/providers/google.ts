@@ -16,7 +16,7 @@ const GOOGLE_IMAGEN_MODELS = [
 ];
 
 export function getDefaultModel(): string {
-  return process.env.GOOGLE_IMAGE_MODEL || "gemini-3-pro-image-preview";
+  return process.env.GOOGLE_IMAGE_MODEL || "gemini-3-pro-image";
 }
 
 export function normalizeGoogleModelId(model: string): string {

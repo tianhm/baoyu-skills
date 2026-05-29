@@ -741,7 +741,7 @@ AI 驱动的生成后端。
 /baoyu-image-gen --prompt "一只猫" --image cat.png --provider openrouter
 
 # OpenRouter + 参考图
-/baoyu-image-gen --prompt "把它变成蓝色" --image out.png --provider openrouter --model google/gemini-3.1-flash-image-preview --ref source.png
+/baoyu-image-gen --prompt "把它变成蓝色" --image out.png --provider openrouter --model google/gemini-3.1-flash-image --ref source.png
 
 # DashScope（阿里通义万相）
 /baoyu-image-gen --prompt "一只可爱的猫" --image cat.png --provider dashscope
@@ -818,8 +818,8 @@ AI 驱动的生成后端。
 | `OPENAI_IMAGE_MODEL` | OpenAI 模型 | `gpt-image-2` |
 | `AZURE_OPENAI_DEPLOYMENT` | Azure 默认部署名 | - |
 | `AZURE_OPENAI_IMAGE_MODEL` | 兼容旧配置的 Azure 部署/模型别名 | `gpt-image-2` |
-| `OPENROUTER_IMAGE_MODEL` | OpenRouter 模型 | `google/gemini-3.1-flash-image-preview` |
-| `GOOGLE_IMAGE_MODEL` | Google 模型 | `gemini-3-pro-image-preview` |
+| `OPENROUTER_IMAGE_MODEL` | OpenRouter 模型 | `google/gemini-3.1-flash-image` |
+| `GOOGLE_IMAGE_MODEL` | Google 模型 | `gemini-3-pro-image` |
 | `DASHSCOPE_IMAGE_MODEL` | DashScope 模型 | `qwen-image-2.0-pro` |
 | `ZAI_IMAGE_MODEL` | Z.AI 模型 | `glm-image` |
 | `BIGMODEL_IMAGE_MODEL` | Z.AI 模型向后兼容别名 | `glm-image` |
@@ -1216,14 +1216,14 @@ AZURE_OPENAI_DEPLOYMENT=gpt-image-2
 
 # OpenRouter
 OPENROUTER_API_KEY=sk-or-xxx
-OPENROUTER_IMAGE_MODEL=google/gemini-3.1-flash-image-preview
+OPENROUTER_IMAGE_MODEL=google/gemini-3.1-flash-image
 # OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 # OPENROUTER_HTTP_REFERER=https://your-app.example.com
 # OPENROUTER_TITLE=你的应用名
 
 # Google
 GOOGLE_API_KEY=xxx
-GOOGLE_IMAGE_MODEL=gemini-3-pro-image-preview
+GOOGLE_IMAGE_MODEL=gemini-3-pro-image
 # GOOGLE_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 
 # DashScope（阿里通义万相）

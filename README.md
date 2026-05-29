@@ -750,7 +750,7 @@ AI SDK-based image generation using OpenAI GPT Image 2, Azure OpenAI, Google, Op
 /baoyu-image-gen --prompt "A cat" --image cat.png --provider openrouter
 
 # OpenRouter with reference images
-/baoyu-image-gen --prompt "Make it blue" --image out.png --provider openrouter --model google/gemini-3.1-flash-image-preview --ref source.png
+/baoyu-image-gen --prompt "Make it blue" --image out.png --provider openrouter --model google/gemini-3.1-flash-image --ref source.png
 
 # DashScope (Aliyun Tongyi Wanxiang)
 /baoyu-image-gen --prompt "一只可爱的猫" --image cat.png --provider dashscope
@@ -827,8 +827,8 @@ AI SDK-based image generation using OpenAI GPT Image 2, Azure OpenAI, Google, Op
 | `OPENAI_IMAGE_MODEL` | OpenAI model | `gpt-image-2` |
 | `AZURE_OPENAI_DEPLOYMENT` | Azure default deployment name | - |
 | `AZURE_OPENAI_IMAGE_MODEL` | Backward-compatible Azure deployment/model alias | `gpt-image-2` |
-| `OPENROUTER_IMAGE_MODEL` | OpenRouter model | `google/gemini-3.1-flash-image-preview` |
-| `GOOGLE_IMAGE_MODEL` | Google model | `gemini-3-pro-image-preview` |
+| `OPENROUTER_IMAGE_MODEL` | OpenRouter model | `google/gemini-3.1-flash-image` |
+| `GOOGLE_IMAGE_MODEL` | Google model | `gemini-3-pro-image` |
 | `DASHSCOPE_IMAGE_MODEL` | DashScope model | `qwen-image-2.0-pro` |
 | `ZAI_IMAGE_MODEL` | Z.AI model | `glm-image` |
 | `BIGMODEL_IMAGE_MODEL` | Backward-compatible alias for Z.AI model | `glm-image` |
@@ -1225,14 +1225,14 @@ AZURE_OPENAI_DEPLOYMENT=gpt-image-2
 
 # OpenRouter
 OPENROUTER_API_KEY=sk-or-xxx
-OPENROUTER_IMAGE_MODEL=google/gemini-3.1-flash-image-preview
+OPENROUTER_IMAGE_MODEL=google/gemini-3.1-flash-image
 # OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 # OPENROUTER_HTTP_REFERER=https://your-app.example.com
 # OPENROUTER_TITLE=Your App Name
 
 # Google
 GOOGLE_API_KEY=xxx
-GOOGLE_IMAGE_MODEL=gemini-3-pro-image-preview
+GOOGLE_IMAGE_MODEL=gemini-3-pro-image
 # GOOGLE_BASE_URL=https://generativelanguage.googleapis.com/v1beta
 
 # DashScope (Aliyun Tongyi Wanxiang)
