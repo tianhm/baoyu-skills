@@ -798,7 +798,7 @@ AI 驱动的生成后端。
 | `--image` | 输出图片路径（必需） |
 | `--batchfile` | 多图批量生成的 JSON 文件 |
 | `--jobs` | 批量模式的并发 worker 数 |
-| `--provider` | `google`、`openai`、`azure`、`openrouter`、`dashscope`、`zai`、`minimax`、`jimeng`、`seedream` 或 `replicate` |
+| `--provider` | `google`、`openai`、`azure`、`openrouter`、`dashscope`、`zai`、`minimax`、`jimeng`、`seedream`、`replicate` 或 `agnes` |
 | `--model`, `-m` | 模型 ID 或部署名。Azure 使用部署名；OpenRouter 使用完整模型 ID；Z.AI 使用 `glm-image`；MiniMax 使用 `image-01` / `image-01-live` |
 | `--ar` | 宽高比（如 `16:9`、`1:1`、`4:3`） |
 | `--size` | 尺寸（如 `1024x1024`；`gpt-image-2` 支持最长边不超过 3840px 的有效自定义尺寸） |
@@ -872,9 +872,9 @@ AI 驱动的生成后端。
 
 **服务商自动选择**：
 1. 如果指定了 `--provider` → 使用指定的
-2. 如果传了 `--ref` 且未指定 provider → 依次尝试 Google、OpenAI、Azure、OpenRouter、Replicate、Seedream，最后是 MiniMax
+2. 如果传了 `--ref` 且未指定 provider → 依次尝试 Google、OpenAI、Azure、OpenRouter、Replicate、Seedream、MiniMax，最后是 Agnes
 3. 如果只有一个 API 密钥 → 使用对应服务商
-4. 如果多个可用 → 默认使用 Google，然后依次为 OpenAI、Azure、OpenRouter、DashScope、Z.AI、MiniMax、Replicate、即梦、豆包
+4. 如果多个可用 → 默认使用 Google，然后依次为 OpenAI、Azure、OpenRouter、DashScope、Z.AI、MiniMax、Replicate、即梦、豆包、Agnes
 
 #### baoyu-danger-gemini-web
 

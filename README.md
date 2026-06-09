@@ -797,7 +797,7 @@ AI SDK-based image generation using OpenAI GPT Image 2, Azure OpenAI, Google, Op
 | `--image` | Output image path (required) |
 | `--batchfile` | JSON batch file for multi-image generation |
 | `--jobs` | Worker count for batch mode |
-| `--provider` | `google`, `openai`, `azure`, `openrouter`, `dashscope`, `zai`, `minimax`, `jimeng`, `seedream`, or `replicate` |
+| `--provider` | `google`, `openai`, `azure`, `openrouter`, `dashscope`, `zai`, `minimax`, `jimeng`, `seedream`, `replicate`, or `agnes` |
 | `--model`, `-m` | Model ID or deployment name. Azure uses deployment name; OpenRouter uses full model IDs; Z.AI uses `glm-image`; MiniMax uses `image-01` / `image-01-live` |
 | `--ar` | Aspect ratio (e.g., `16:9`, `1:1`, `4:3`) |
 | `--size` | Size (e.g., `1024x1024`; `gpt-image-2` accepts valid custom sizes up to 3840px max edge) |
@@ -871,9 +871,9 @@ AI SDK-based image generation using OpenAI GPT Image 2, Azure OpenAI, Google, Op
 
 **Provider Auto-Selection**:
 1. If `--provider` is specified → use it
-2. If `--ref` is provided and no provider is specified → try Google, then OpenAI, Azure, OpenRouter, Replicate, Seedream, and finally MiniMax
+2. If `--ref` is provided and no provider is specified → try Google, then OpenAI, Azure, OpenRouter, Replicate, Seedream, MiniMax, and finally Agnes
 3. If only one API key is available → use that provider
-4. If multiple providers are available → default to Google, then OpenAI, Azure, OpenRouter, DashScope, Z.AI, MiniMax, Replicate, Jimeng, Seedream
+4. If multiple providers are available → default to Google, then OpenAI, Azure, OpenRouter, DashScope, Z.AI, MiniMax, Replicate, Jimeng, Seedream, Agnes
 
 #### baoyu-danger-gemini-web
 
